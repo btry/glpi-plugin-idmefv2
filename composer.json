@@ -1,0 +1,26 @@
+{
+    "require": {
+        "php": ">=8.2.0",
+        "justinrainbow/json-schema": "^6.12"
+    },
+    "require-dev": {
+        "marcocesarato/php-conventional-changelog": "^1.17"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "8.2.0"
+        },
+        "sort-packages": true
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "tests\\units\\GlpiPlugin\\Idmefv2\\": "tests/src/",
+            "Glpi\\Tools\\": "../../tools/src/"
+        }
+    },
+    "scripts": {
+        "build-schema": "tools/build-db-schema.php idmefv2 | plantuml -p -tpng > docs/db-schema.png"
+    },
+    "version": "1.0.0-dev"
+}

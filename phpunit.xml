@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+  bootstrap="tests/bootstrap.php"
+  displayDetailsOnTestsThatTriggerDeprecations="true"
+  displayDetailsOnTestsThatTriggerErrors="true"
+  displayDetailsOnTestsThatTriggerNotices="true"
+  displayDetailsOnTestsThatTriggerWarnings="true"
+  displayDetailsOnPhpunitDeprecations="true"
+  processIsolation="true"
+  backupGlobals="false"
+  colors="true"
+  stderr="true"
+  requireCoverageMetadata="true">
+  <source>
+    <include>
+      <directory suffix=".php">src</directory>
+      <file>setup.php</file>
+      <file>hook.php</file>
+    </include>
+  </source>
+  <logging>
+    <junit outputFile="./tests/logs/junit_install.xml" />
+  </logging>
+  <!-- exclude relatively to ${basedir} -->
+  <!-- <filter>
+    <whitelist>
+      <directory suffix=".php">./inc</directory>
+    </whitelist>
+  </filter> -->
+  <testsuites>
+    <testsuite name="Install">
+      <directory>./tests/install/</directory>
+    </testsuite>
+    <testsuite name="Unit">
+      <directory>./tests/unit/</directory>
+    </testsuite>
+    <testsuite name="Uninstall">
+      <directory>./tests/uninstall/</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>
