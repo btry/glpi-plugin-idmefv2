@@ -8,13 +8,14 @@ use Glpi\Exception\Http\BadRequestHttpException;
 use Glpi\Http\Firewall;
 use Glpi\Security\Attribute\SecurityStrategy;
 use GlpiPlugin\Idmefv2\Alert;
+use GlpiPlugin\Idmefv2\Config;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class AlertController extends AbstractController
 {
-    #[SecurityStrategy(Firewall::STRATEGY_AUTHENTICATED)]
+    #[SecurityStrategy(Firewall::STRATEGY_NO_CHECK)]
     #[Route(
         path: 'alert.php',
         name: 'idmefv2_alert',
@@ -25,7 +26,10 @@ final class AlertController extends AbstractController
         if ($request->isMethod('GET')) {
             throw new BadRequestHttpException('Bad request');
         }
-        $this->validateClientCertificate($request);
+        $require_client_certificate = Config::getConfigurationValue('require_client_certificate');
+        if ($require_client_certificate) {
+            $this->validateClientCertificate($request);
+        }
 
         $alert = new Alert((string) $request->getContent());
         $alert->processAlert();

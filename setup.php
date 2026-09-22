@@ -31,6 +31,8 @@
  * -------------------------------------------------------------------------
  */
 
+use Config as GlpiConfig;
+use GlpiPlugin\Idmefv2\Config;
 
 // Version of the plugin (major.minor.bugfix)
 define('PLUGIN_IDMEFV2_VERSION', '1.0.0-dev');
@@ -71,8 +73,6 @@ function plugin_init_idmefv2()
     require_once(__DIR__ . '/vendor/autoload.php');
     plugin_idmefv2_setupHooks();
     plugin_idmefv2_registerClasses();
-
-    $CFG_GLPI['javascript']['tools'][strtolower(Report::class)] = ['dashboard'];
 }
 
 function plugin_idmefv2_setupHooks()
@@ -80,6 +80,9 @@ function plugin_idmefv2_setupHooks()
     /** @var array $PLUGIN_HOOKS */
     global $PLUGIN_HOOKS;
 
+    if (Session::haveRight(GlpiConfig::$rightname, UPDATE)) {
+        $PLUGIN_HOOKS['config_page']['idmefv2'] = 'front/config.form.php';
+    }
 }
 
 function plugin_idmefv2_boot()
@@ -89,7 +92,7 @@ function plugin_idmefv2_boot()
 
 function plugin_idmefv2_registerClasses()
 {
-
+    Plugin::registerClass(Config::class, ['addtabon' => GlpiConfig::class]);
 }
 
 /**
