@@ -22,10 +22,18 @@ final class AlertController extends AbstractController
         methods: ['GET', 'POST'])]
     public function alert(Request $request): Response
     {
-        // if method is GET, then throw an exception, workaround bug in GLPI up to 11.0.7
-        if ($request->isMethod('GET')) {
+        // Check the requester declared to send a json body
+        if ($request->headers->get('Content-Type') !== 'application/json') {
             throw new BadRequestHttpException('Bad request');
         }
+
+        // if method is GET, then throw an exception, workaround bug in GLPI up to 11.0.7
+        if ($request->isMethod('GET')) {
+            // throw new BadRequestHttpException('Bad request');
+            return new Response('', 403);
+        }
+
+
         $require_client_certificate = Config::getConfigurationValue('require_client_certificate');
         if ($require_client_certificate) {
             $this->validateClientCertificate($request);
@@ -34,7 +42,12 @@ final class AlertController extends AbstractController
         $alert = new Alert((string) $request->getContent());
         $alert->processAlert();
 
-        return new Response($alert->getResponse(), Response::HTTP_OK, ['Content-Type' => 'application/json']);
+        return new Response(
+            $alert->getResponse(),
+            Response::HTTP_OK, [
+                'Content-Type' => 'application/json'
+            ]
+        );
     }
 
     private function validateClientCertificate(Request $request): void
