@@ -16,6 +16,13 @@
             __('Require HTTP client certificate', 'idmefv2')
         ) }}
 
+        {{ fields.textareaField(
+            'client_ca_public_key',
+            client_ca_public_key,
+            __('Trusted client CA public key (PEM)', 'idmefv2'),
+            {'enable_richtext': false, 'rows': 8}
+        ) }}
+
         <button type="submit" class="btn btn-primary mx-1" name="update" value="1">
             <i class="ti ti-device-floppy"></i>
             <span>{{ _x('button', 'Save') }}</span>

@@ -111,8 +111,7 @@ final class AlertController extends AbstractController
             }
         }
 
-        $fallback = dirname(__DIR__, 3) . '/config/mtls/ca.pem';
-        $fallback = GLPI_PLUGIN_DOC_DIR . '/idmefv2/mtls/ca.pem';
+        $fallback = Config::getCaCertificatePath();
         return is_readable($fallback) ? $fallback : null;
     }
 }
