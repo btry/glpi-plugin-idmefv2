@@ -26,7 +26,7 @@ class Config extends CommonDBTM
     #[Override]
     public static function getIcon(): string
     {
-        return 'fa-solid fa-xxxx';
+        return 'fa-solid fa-fire';
     }
 
     #[Override]
