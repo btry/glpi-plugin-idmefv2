@@ -3,9 +3,6 @@
         "php": ">=8.2.0",
         "justinrainbow/json-schema": "^6.12"
     },
-    "require-dev": {
-        "marcocesarato/php-conventional-changelog": "^1.17"
-    },
     "config": {
         "optimize-autoloader": true,
         "platform": {
