@@ -73,6 +73,7 @@ final class AlertControllerTest extends TestCase
             [
                 'SSL_CLIENT_CERT' => $clientPem,
                 'SSL_CLIENT_VERIFY' => 'SUCCESS',
+                'CONTENT_TYPE' => 'application/json',
             ],
             json_encode($message)
         );
@@ -94,12 +95,35 @@ final class AlertControllerTest extends TestCase
             [
                 'SSL_CLIENT_CERT' => 'not-a-certificate',
                 'SSL_CLIENT_VERIFY' => 'FAILED',
+                'CONTENT_TYPE' => 'application/json',
             ],
             '{"Analyzer":{"IP":"10.0.0.5"}}'
         );
 
         $this->expectException(AccessDeniedHttpException::class);
         $this->expectExceptionMessage('Mutual TLS client certificate verification failed.');
+
+        (new AlertController())->alert($request);
+    }
+
+    public function testRejectsIncorrectContentType(): void
+    {
+        $request = Request::create(
+            '/plugins/idmefv2/alert',
+            'POST',
+            [],
+            [],
+            [],
+            [
+                'SSL_CLIENT_CERT' => 'not-a-certificate',
+                'SSL_CLIENT_VERIFY' => 'FAILED',
+                'CONTENT_TYPE' => 'foo/bar',
+            ],
+            '{"Analyzer":{"IP":"10.0.0.5"}}'
+        );
+
+        $this->expectException(AccessDeniedHttpException::class);
+        $this->expectExceptionMessage('Bad request');
 
         (new AlertController())->alert($request);
     }
