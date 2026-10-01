@@ -1,5 +1,39 @@
 <?php
 
+/**
+ *  -------------------------------------------------------------------------
+ *  IDMEFv2 plugin for GLPI
+ *
+ * @copyright Copyright (C) 2024-2025 Teclib' and contributors.
+ * @copyright 2015-2023 Teclib' and contributors.
+ * @copyright 2003-2014 by the INDEPNET Development Team.
+ * @licence   https://www.gnu.org/licenses/gpl-3.0.html
+ * @license   https://www.gnu.org/licenses/gpl-3.0.txt GPLv3+
+ * @link      https://idmefv2.ovh
+ * @link      https://github.com/idmefv2
+ *
+ *  -------------------------------------------------------------------------
+ *
+ *  LICENSE
+ *
+ *  This file is part of IDMEFv2 plugin for GLPI.
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  -------------------------------------------------------------------------
+ */
+
 namespace GlpiPlugin\Idmefv2;
 
 use CommonGLPI;
@@ -66,15 +100,79 @@ class Config extends CommonDBTM
         $current_config = GlpiConfig::getConfigurationValues(self::CONFIG_CONTEXT);
 
         $current_config['require_http_client_certificate'] ??= '1';
+        $ca_path = self::getCaCertificatePath();
+        $client_ca_public_key = is_readable($ca_path) ? (string) file_get_contents($ca_path) : '';
 
         $renderer = TemplateRenderer::getInstance();
         $renderer->display('@idmefv2/pages/Config.html.twig', [
             'can_edit'                   => $canedit,
             'context'                    => self::CONFIG_CONTEXT,
             'current_config'             => $current_config,
+            'client_ca_public_key'       => $client_ca_public_key,
         ]);
 
         return true;
+    }
+
+    public static function configUpdate(array $input): array
+    {
+        return self::handleClientCaPublicKey($input);
+    }
+
+    public static function handleClientCaPublicKey(array $input): array
+    {
+        if (!array_key_exists('client_ca_public_key', $input)) {
+            return $input;
+        }
+
+        $client_ca_public_key = trim((string) $input['client_ca_public_key']);
+        unset($input['client_ca_public_key']);
+
+        if ($client_ca_public_key !== '' && @openssl_pkey_get_public($client_ca_public_key) === false) {
+            Session::addMessageAfterRedirect(
+                __s('The client CA public key must be a valid PEM public key or certificate.', 'idmefv2'),
+                false,
+                ERROR
+            );
+            return $input;
+        }
+
+        $ca_path = self::getCaCertificatePath();
+        $ca_directory = dirname($ca_path);
+        if (!is_dir($ca_directory) && !@mkdir($ca_directory, 0750, true) && !is_dir($ca_directory)) {
+            Session::addMessageAfterRedirect(
+                __s('Unable to create the client CA certificate directory.', 'idmefv2'),
+                false,
+                ERROR
+            );
+            return $input;
+        }
+
+        if ($client_ca_public_key === '') {
+            if (is_file($ca_path) && !@unlink($ca_path)) {
+                Session::addMessageAfterRedirect(
+                    __s('Unable to remove the client CA public key file.', 'idmefv2'),
+                    false,
+                    ERROR
+                );
+            }
+            return $input;
+        }
+
+        if (@file_put_contents($ca_path, $client_ca_public_key . "\n", LOCK_EX) === false) {
+            Session::addMessageAfterRedirect(
+                __s('Unable to save the client CA public key file.', 'idmefv2'),
+                false,
+                ERROR
+            );
+        }
+
+        return $input;
+    }
+
+    public static function getCaCertificatePath(): string
+    {
+        return GLPI_PLUGIN_DOC_DIR . '/idmefv2/mtls/ca.pem';
     }
 
     /**

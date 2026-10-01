@@ -1,5 +1,39 @@
 <?php
 
+/**
+ *  -------------------------------------------------------------------------
+ *  IDMEFv2 plugin for GLPI
+ *
+ * @copyright Copyright (C) 2024-2025 Teclib' and contributors.
+ * @copyright 2015-2023 Teclib' and contributors.
+ * @copyright 2003-2014 by the INDEPNET Development Team.
+ * @licence   https://www.gnu.org/licenses/gpl-3.0.html
+ * @license   https://www.gnu.org/licenses/gpl-3.0.txt GPLv3+
+ * @link      https://idmefv2.ovh
+ * @link      https://github.com/idmefv2
+ *
+ *  -------------------------------------------------------------------------
+ *
+ *  LICENSE
+ *
+ *  This file is part of IDMEFv2 plugin for GLPI.
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  -------------------------------------------------------------------------
+ */
+
 namespace tests\units\Glpi\Plugin\Idmefv2\Controller;
 
 use Glpi\Exception\Http\AccessDeniedHttpException;
@@ -39,6 +73,7 @@ final class AlertControllerTest extends TestCase
             [
                 'SSL_CLIENT_CERT' => $clientPem,
                 'SSL_CLIENT_VERIFY' => 'SUCCESS',
+                'CONTENT_TYPE' => 'application/json',
             ],
             json_encode($message)
         );
@@ -60,12 +95,35 @@ final class AlertControllerTest extends TestCase
             [
                 'SSL_CLIENT_CERT' => 'not-a-certificate',
                 'SSL_CLIENT_VERIFY' => 'FAILED',
+                'CONTENT_TYPE' => 'application/json',
             ],
             '{"Analyzer":{"IP":"10.0.0.5"}}'
         );
 
         $this->expectException(AccessDeniedHttpException::class);
         $this->expectExceptionMessage('Mutual TLS client certificate verification failed.');
+
+        (new AlertController())->alert($request);
+    }
+
+    public function testRejectsIncorrectContentType(): void
+    {
+        $request = Request::create(
+            '/plugins/idmefv2/alert',
+            'POST',
+            [],
+            [],
+            [],
+            [
+                'SSL_CLIENT_CERT' => 'not-a-certificate',
+                'SSL_CLIENT_VERIFY' => 'FAILED',
+                'CONTENT_TYPE' => 'foo/bar',
+            ],
+            '{"Analyzer":{"IP":"10.0.0.5"}}'
+        );
+
+        $this->expectException(AccessDeniedHttpException::class);
+        $this->expectExceptionMessage('Bad request');
 
         (new AlertController())->alert($request);
     }
