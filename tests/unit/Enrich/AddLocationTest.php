@@ -34,7 +34,7 @@
  *  -------------------------------------------------------------------------
  */
 
-namespace tests\units\Glpi\Plugin\Idmefv2\Enrich;
+namespace tests\units\GlpiPlugin\Idmefv2\Enrich;
 
 use Computer;
 use GlpiPlugin\Idmefv2\Enrich\AddLocation;
@@ -43,7 +43,7 @@ use NetworkPort;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use stdClass;
-use tests\units\GlpiPlugin\idmefv2\DbTestCase;
+use tests\units\GlpiPlugin\Idmefv2\DbTestCase;
 
 #[CoversClass(AddLocation::class)]
 final class AddLocationTest extends DbTestCase
