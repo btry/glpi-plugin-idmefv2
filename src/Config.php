@@ -186,4 +186,9 @@ class Config extends CommonDBTM
     {
         return GlpiConfig::getConfigurationValue(self::CONFIG_CONTEXT, $name);
     }
+
+    public static function setConfigurationValues(array $values): void
+    {
+        GlpiConfig::setConfigurationValues(self::CONFIG_CONTEXT, $values);
+    }
 }

@@ -37,6 +37,7 @@
 namespace GlpiPlugin\Idmefv2;
 
 use Exception;
+use GlpiPlugin\Idmefv2\Action\CreateTicket;
 use GlpiPlugin\Idmefv2\Enrich\AddLocation;
 use GlpiPlugin\Idmefv2\Idmefv2 as GlpiPluginIdmefv2;
 use RuntimeException;
@@ -63,7 +64,9 @@ class Alert
         $this->enrichments = [
             new AddLocation(),
         ];
-        $this->actions = [];
+        $this->actions = [
+            new CreateTicket(),
+        ];
     }
 
     public function processAlert()
@@ -83,7 +86,7 @@ class Alert
         // FIXME: delay action in a separate process for faster answer to the alert sender,
         // as actions may take a long time to complete
         foreach ($this->actions as $action) {
-            $action->execute($this->returned_idmefv2_message);
+            $this->returned_idmefv2_message = $action->execute($this->returned_idmefv2_message);
         }
     }
 

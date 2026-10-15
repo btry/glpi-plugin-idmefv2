@@ -34,7 +34,7 @@
  *  -------------------------------------------------------------------------
  */
 
-namespace tests\units\GlpiPlugin\idmefv2;
+namespace tests\units\GlpiPlugin\Idmefv2;
 
 use DBmysql;
 use Glpi\Tests\DbTestCase as GlpiDbTestCase;
