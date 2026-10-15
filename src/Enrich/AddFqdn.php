@@ -36,6 +36,8 @@
 
 namespace GlpiPlugin\Idmefv2\Enrich;
 
+use IPAddress;
+use NetworkName;
 use stdClass;
 
 class AddFqdn implements EnrichInterface
@@ -61,7 +63,16 @@ class AddFqdn implements EnrichInterface
      */
     private function getFqdn(string $ip): ?string
     {
-        global $DB;
+        foreach (IPAddress::getItemsByIPAddress($ip) as $items) {
+            foreach ($items as $item) {
+                if ($item instanceof NetworkName) {
+                    $fqdn = $item->getInternetName();
+                    if ($fqdn !== '') {
+                        return $fqdn;
+                    }
+                }
+            }
+        }
 
         return null;
     }
