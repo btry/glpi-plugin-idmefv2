@@ -45,7 +45,7 @@ function plugin_idmefv2_install(array $args = []): bool
     }
     require_once(__DIR__ . '/install/Install.php');
     $version = Install::detectVersion();
-    $install = new Install(new Migration(PLUGIN_CARBON_VERSION));
+    $install = new Install(new Migration(PLUGIN_IDMEFV2_VERSION));
 
     $success = true;
     $silent = !isCommandLine() && $_SESSION['glpi_use_mode'] !== Session::DEBUG_MODE;
