@@ -53,20 +53,13 @@ final class AlertController extends AbstractController
     #[Route(
         path: 'alert.php',
         name: 'idmefv2_alert',
-        methods: ['GET', 'POST'])]
+        methods: ['POST'])]
     public function alert(Request $request): Response
     {
         // Check the requester declared to send a json body
         if ($request->headers->get('Content-Type') !== 'application/json') {
             throw new BadRequestHttpException('Bad request');
         }
-
-        // if method is GET, then throw an exception, workaround bug in GLPI up to 11.0.7
-        if ($request->isMethod('GET')) {
-            // throw new BadRequestHttpException('Bad request');
-            return new Response('', 403);
-        }
-
 
         $require_client_certificate = Config::getConfigurationValue('require_client_certificate');
         if ($require_client_certificate) {
